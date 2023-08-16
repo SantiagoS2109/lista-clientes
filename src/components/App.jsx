@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
+import fiduciariaBogotaImg from "../assets/img/logo.webp";
+import { CaretRight, CaretLeft } from "@phosphor-icons/react";
 // import { useState } from "react";
 // import { useEffect } from "react";
 
@@ -56,43 +58,6 @@ const encabezados2 = [
 //   userName: "",
 //   usuarioGenera: "LSUAREZC",
 // };
-
-// const megaData = [
-//   {
-//     contEmail: "LSUAREZC@FIDUBOGOTA.COM",
-//     contObs: "NO",
-//     destinatariosId: "1",
-//     grupoAdmin: "LSUAREZC",
-//     grupoNombre: "CampRendicion",
-//     grupoSeleccion: "SI",
-//     prodDesc: "RENDICION",
-//     prodProducto: "ENC",
-//     prodTipo: "444",
-//     terId: "987654321",
-//     terNombre: "USUARIO PRUEBA",
-//     terTipoId: "C",
-//     userId: "20099",
-//     userName: "",
-//     usuarioGenera: "LSUAREZC",
-//   },
-//   {
-//     contEmail: "SSEPULVEDAN@FIDUBOGOTA.COM",
-//     contObs: "SI",
-//     destinatariosId: "2",
-//     grupoAdmin: "SSEPULVEDAN  ",
-//     grupoNombre: "CampRendicion",
-//     grupoSeleccion: "SI",
-//     prodDesc: "RENDICION",
-//     prodProducto: "ENC",
-//     prodTipo: "444",
-//     terId: "987654321",
-//     terNombre: "USUARIO PRUEBA",
-//     terTipoId: "C",
-//     userId: "154505",
-//     userName: "",
-//     usuarioGenera: "LSUAREZC",
-//   },
-// ];
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -167,42 +132,63 @@ function App() {
 
   const [contEmail, setContEmail] = useState("");
   const [contObs, setContObs] = useState("");
+  const [destinatariosId, setDestinatariosId] = useState("");
+  const [grupoAdmin, setGrupoAdmin] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
 
+    if (!contEmail) return;
+
+    function generateUUID() {
+      const uuid = crypto.randomUUID();
+      return uuid;
+    }
+
     const newEntry = {
       contEmail: contEmail,
       contObs: contObs,
-      destinatariosId: "X",
-      grupoAdmin: "XXXXXX",
+      destinatariosId: destinatariosId,
+      grupoAdmin: grupoAdmin,
       grupoNombre: "XXXXXX",
       grupoSeleccion: "XXXXXX",
       prodDesc: "XXXXXX",
       prodProducto: "XXXXXX",
       prodTipo: "XXXXXX",
       terId: "XXXXXX",
-      terNombre: "XXXXXX",
+      terNombre: "PEPIRO PEREZ",
       terTipoId: "XXXXXX",
       userId: "XXXXXX",
       userName: "XXXXXX",
       usuarioGenera: "XXXXXX",
+      uuid: generateUUID(),
     };
 
     setData([...data, newEntry]);
     setContEmail("");
     setContObs("");
+    setDestinatariosId("");
+    setGrupoAdmin("");
+    setShowNewEntry(false);
   }
 
   return (
     <div>
       <main className="flex flex-col gap-8 items-center justify-center">
-        {isLoading && <h1 className="text-6xl mt-48">Cargando...</h1>}
+        <header className="flex flex-col items-center">
+          <div className="object-cover object-[80%] h-[150px]">
+            <img src={fiduciariaBogotaImg} alt="Fiduciaría Bogotá" />
+          </div>
+          <h1 className="text-4xl uppercase font-bold text-[#121f4f]">
+            Gestión de Grupos
+          </h1>
+        </header>
+        {isLoading && <h1 className="text-6xl mt-32">Cargando...</h1>}
         {!isLoading && (
           <>
             <table
               id="clientes"
-              className="font-sans text-xs border-collapse w-[70%] mt-24"
+              className="font-sans text-xs border-collapse w-[70%] mt-8"
             >
               <thead>
                 <tr>
@@ -222,7 +208,9 @@ function App() {
             </table>
 
             <div className="flex gap-4">
-              <button className="">Previous</button>
+              <button className="rounded-md border border-[#228be6]">
+                <CaretLeft color="#228be6" size={24} />
+              </button>
               <button className="w-8 h-8 bg-[#228be6] text-white rounded-md">
                 1
               </button>
@@ -230,37 +218,44 @@ function App() {
                 2
               </button>
               <button className="w-8 h-8 bg-white text-[#228be6] rounded-md border border-[#228be6]">
-                2
+                3
               </button>
-              <button className="">Next</button>
+              <button className="rounded-md border border-[#228be6]">
+                <CaretRight color="#228be6" size={24} />
+              </button>
             </div>
 
             {showNewEntry && (
               <form action="newEntry">
-                <div className="mb-2">
-                  <label className="mr-2" htmlFor="contEmail">
-                    Email
-                  </label>
-                  <input
-                    className="border border-gray-400 rounded-md p-2"
-                    type="email"
-                    name="contEmail"
-                    value={contEmail}
-                    onChange={(e) => setContEmail(e.target.value)}
-                  />
-                </div>
-                <div className="mb-2">
-                  <label className="mr-2" htmlFor="contObs">
-                    Observación
-                  </label>
-                  <input
-                    className="border border-gray-400 rounded-md p-2"
-                    type="text"
-                    name="contObs"
-                    value={contObs}
-                    onChange={(e) => setContObs(e.target.value)}
-                  />
-                </div>
+                <FormInput
+                  value={contEmail}
+                  setValue={setContEmail}
+                  name={"contEmail"}
+                  descripcion={"Email"}
+                  type={"text"}
+                />
+                <FormInput
+                  value={contObs}
+                  setValue={setContObs}
+                  name={"contObs"}
+                  descripcion={"Observación"}
+                  type={"text"}
+                />
+                <FormInput
+                  value={destinatariosId}
+                  setValue={setDestinatariosId}
+                  name={"destinatariosId"}
+                  descripcion={"Destinatarios ID"}
+                  type={"text"}
+                />
+                <FormInput
+                  value={grupoAdmin}
+                  setValue={setGrupoAdmin}
+                  name={"grupoAdmin"}
+                  descripcion={"Grupo Admin"}
+                  type={"text"}
+                />
+
                 {/* <div>
                 <label className="mr-2" htmlFor="destinatariosId">
                   Destinatarios ID
@@ -290,7 +285,7 @@ function App() {
               </form>
             )}
             <button
-              className="bg-[#228be6] text-white p-2 rounded-md font-medium"
+              className="bg-[#228be6] text-white p-2 rounded-md font-medium mb-12"
               onClick={handleShowNewEntry}
             >
               {!showNewEntry ? "Nueva Entrada" : "Cerrar"}
@@ -329,6 +324,8 @@ function ElementoTabla({ descripcion }) {
     descripcion: PropTypes.any,
   };
 
+  if (descripcion.length > 30) return;
+
   return (
     <td className="border border-solid border-[#ddd] p-2">{descripcion}</td>
   );
@@ -340,4 +337,29 @@ function HeaderTabla({ titulo }) {
   };
 
   return <th className="border border-solid border-[#ddd] p-2">{titulo}</th>;
+}
+
+function FormInput({ value, setValue, name, descripcion, type }) {
+  FormInput.propTypes = {
+    value: PropTypes.any,
+    setValue: PropTypes.any,
+    name: PropTypes.any,
+    descripcion: PropTypes.any,
+    type: PropTypes.string,
+  };
+
+  return (
+    <div className="mb-2">
+      <label className="mr-2" htmlFor="contObs">
+        {descripcion}
+      </label>
+      <input
+        className="border border-gray-400 rounded-md p-2"
+        type={type}
+        name={name}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+    </div>
+  );
 }
