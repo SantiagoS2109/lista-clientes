@@ -1,44 +1,20 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
-import fiduciariaBogotaImg from "../assets/img/logo.webp";
 import { CaretRight, CaretLeft } from "@phosphor-icons/react";
-// import { useState } from "react";
-// import { useEffect } from "react";
-
-// const encabezados = [
-//   "contEmail",
-//   "contObs",
-//   "destinatariosId",
-//   "grupoAdmin",
-//   "grupoNombre",
-//   "grupoSeleccion",
-//   "prodDesc",
-//   "prodProducto",
-//   "prodTipo",
-//   "terId",
-//   "terNombre",
-//   "terTipoId",
-//   "userId",
-//   "userName",
-//   "usuarioGenera",
-// ];
 
 const encabezados2 = [
-  { key: "contEmail", titulo: "Email" },
-  { key: "contObs", titulo: "Observación" },
-  { key: "destinatariosId", titulo: "Destinatarios ID" },
-  { key: "grupoAdmin", titulo: "Grupo Admin" },
-  { key: "grupoNombre", titulo: "Grupo Nombre" },
-  { key: "grupoSeleccion", titulo: "Grupo Seleccion" },
+  { key: "grupoNombre", titulo: "Nombre campaña" },
   { key: "prodDesc", titulo: "Descripción" },
+  { key: "grupoAdmin", titulo: "Administrador grupo" },
+  { key: "destinatariosId", titulo: "ID" },
+  { key: "terTipoId", titulo: "Tipo documento" },
+  { key: "terId", titulo: "Documento" },
+  { key: "terNombre", titulo: "Nombre" },
+  { key: "contEmail", titulo: "Email" },
   { key: "prodProducto", titulo: "Producto" },
   { key: "prodTipo", titulo: "Tipo" },
-  { key: "terId", titulo: "ID" },
-  { key: "terNombre", titulo: "Nombre" },
-  { key: "terTipoId", titulo: "Tipo ID" },
-  { key: "userId", titulo: "User ID" },
-  { key: "userName", titulo: "User name" },
-  { key: "usuarioGenera", titulo: "Usuario General" },
+  { key: "grupoSeleccion", titulo: "Grupo Seleccion" },
+  { key: "contObs", titulo: "Observación" },
 ];
 
 // const data = {
@@ -62,6 +38,18 @@ const encabezados2 = [
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
+  const [dataFiltrada, setDataFiltrada] = useState([]);
+
+  const [filtroActivo, setFiltroActivo] = useState(false);
+
+  function handleSeleccionFiltro(e) {
+    setFiltroActivo(true);
+
+    const filtro = e.target.value;
+    if (filtro === "") setFiltroActivo(false);
+
+    setDataFiltrada(data.filter((element) => element.grupoNombre === filtro));
+  }
 
   useEffect(function () {
     async function fetchData() {
@@ -82,7 +70,7 @@ function App() {
         const data = await res.json();
 
         // Manipular los datos recibidos
-        console.log("Datos recibidos:", data);
+        // console.log("Datos recibidos:", data);
         setData(data);
       } catch (err) {
         // Manejar cualquier error que ocurra durante la solicitud
@@ -96,33 +84,26 @@ function App() {
   }, []);
 
   const propiedadesTabla = [
-    "contEmail",
-    "contObs",
-    "destinatariosId",
-    "grupoAdmin",
-    "grupoNombre",
-    "grupoSeleccion",
-    "prodDesc",
-    "prodProducto",
-    "prodTipo",
-    "terId",
-    "terNombre",
-    "terTipoId",
-    "userId",
-    "userName",
-    "usuarioGenera",
-    "uuid",
+    ...new Set(encabezados2.map((elemento) => elemento.key)),
   ];
 
-  // Filtrar las propiedades del objeto
-  const propiedadesFiltradas = data.map((elemento) =>
-    Object.keys(elemento)
-      .filter((propiedad) => propiedadesTabla.includes(propiedad))
-      .reduce((obj, propiedad) => {
-        obj[propiedad] = elemento[propiedad];
-        return obj;
-      }, {})
-  );
+  function filtrarPropiedadesTabla(dataArray) {
+    // Filtrar las propiedades del objeto
+    const propiedadesFiltradas = dataArray.map((elemento) =>
+      Object.keys(elemento)
+        .filter((propiedad) => propiedadesTabla.includes(propiedad))
+        .reduce((obj, propiedad) => {
+          obj[propiedad] = elemento[propiedad];
+          return obj;
+        }, {})
+    );
+
+    return propiedadesFiltradas;
+  }
+
+  const opcionesFiltro = [...new Set(data.map((item) => item.grupoNombre))];
+
+  // console.log(opcionesFiltro);
 
   const [showNewEntry, setShowNewEntry] = useState(false);
 
@@ -130,65 +111,93 @@ function App() {
     setShowNewEntry((cur) => !cur);
   }
 
-  const [contEmail, setContEmail] = useState("");
-  const [contObs, setContObs] = useState("");
-  const [destinatariosId, setDestinatariosId] = useState("");
+  //////////////////////////////////////////////////////
+  // DECLARACION STATE DE MODAL DE REGISTRO
+
+  const [grupoNombre, setGrupoNombre] = useState("");
+  const [prodDesc, setProdDesc] = useState("");
   const [grupoAdmin, setGrupoAdmin] = useState("");
+  const [destinatariosId, setDestinatariosId] = useState("");
+  const [terTipoId, setTerTipoId] = useState("");
+  const [terId, setTerId] = useState("");
+  const [terNombre, setTerNombre] = useState("");
+  const [contEmail, setContEmail] = useState("");
+  const [prodProducto, setProdProducto] = useState("");
+  const [prodTipo, setProdTipo] = useState("");
+  const [grupoSeleccion, setGrupoSeleccion] = useState("");
+  const [contObs, setContObs] = useState("");
+
+  const handleChange = (setState) => (event) => {
+    const content = event.target.value;
+
+    setState(content.toUpperCase());
+  };
 
   function handleSubmit(e) {
     e.preventDefault();
 
     if (!contEmail) return;
 
-    function generateUUID() {
-      const uuid = crypto.randomUUID();
-      return uuid;
-    }
+    // function generateUUID() {
+    //   const uuid = crypto.randomUUID();
+    //   return uuid;
+    // }
 
     const newEntry = {
-      contEmail: contEmail,
-      contObs: contObs,
-      destinatariosId: destinatariosId,
+      grupoNombre: grupoNombre,
+      prodDesc: prodDesc,
       grupoAdmin: grupoAdmin,
-      grupoNombre: "XXXXXX",
-      grupoSeleccion: "XXXXXX",
-      prodDesc: "XXXXXX",
-      prodProducto: "XXXXXX",
-      prodTipo: "XXXXXX",
-      terId: "XXXXXX",
-      terNombre: "PEPIRO PEREZ",
-      terTipoId: "XXXXXX",
-      userId: "XXXXXX",
-      userName: "XXXXXX",
-      usuarioGenera: "XXXXXX",
-      uuid: generateUUID(),
+      destinatariosId: destinatariosId,
+      terTipoId: terTipoId,
+      terId: terId,
+      terNombre: terNombre,
+      contEmail: contEmail,
+      prodProducto: prodProducto,
+      prodTipo: prodTipo,
+      grupoSeleccion: grupoSeleccion,
+      contObs: contObs,
+      // uuid: generateUUID(),
     };
 
     setData([...data, newEntry]);
-    setContEmail("");
-    setContObs("");
-    setDestinatariosId("");
+    setGrupoNombre("");
+    setProdDesc("");
     setGrupoAdmin("");
+    setDestinatariosId("");
+    setTerTipoId("");
+    setTerId("");
+    setTerNombre("");
+    setContEmail("");
+    setProdProducto("");
+    setProdTipo("");
+    setGrupoSeleccion("");
+    setContObs("");
     setShowNewEntry(false);
   }
 
   return (
-    <div>
-      <main className="flex flex-col gap-8 items-center justify-center">
-        <header className="flex flex-col items-center">
-          <div className="object-cover object-[80%] h-[150px]">
-            <img src={fiduciariaBogotaImg} alt="Fiduciaría Bogotá" />
-          </div>
-          <h1 className="text-4xl uppercase font-bold text-[#121f4f]">
-            Gestión de Grupos
-          </h1>
-        </header>
+    <div className="flex justify-center static">
+      <div className="flex flex-col items-center justify-center w-[1200px]">
         {isLoading && <h1 className="text-6xl mt-32">Cargando...</h1>}
         {!isLoading && (
           <>
+            <div className="flex self-start gap-4 mb-4 mt-12">
+              <label>Filtrar por campaña:</label>
+              <select
+                className="border border-gray-300"
+                name="selectFiltro"
+                id="filtroCampaña"
+                onChange={(e) => handleSeleccionFiltro(e)}
+              >
+                <option value=""></option>
+                {opcionesFiltro.map((opcion) => (
+                  <OpcionFiltro value={opcion} opcion={opcion} key={opcion} />
+                ))}
+              </select>
+            </div>
             <table
               id="clientes"
-              className="font-sans text-xs border-collapse w-[70%] mt-8"
+              className="font-sans text-xs border-collapse w-full mb-4"
             >
               <thead>
                 <tr>
@@ -201,13 +210,18 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {propiedadesFiltradas.map((el) => (
-                  <FilaTabla key={el.uuid} filaData={el} />
-                ))}
+                {!filtroActivo &&
+                  filtrarPropiedadesTabla(data).map((el) => (
+                    <FilaTabla key={el.uuid} filaData={el} />
+                  ))}
+                {filtroActivo &&
+                  filtrarPropiedadesTabla(dataFiltrada).map((el) => (
+                    <FilaTabla key={el.uuid} filaData={el} />
+                  ))}
               </tbody>
             </table>
 
-            <div className="flex gap-4">
+            <div className="flex self-end gap-4">
               <button className="rounded-md border border-[#228be6]">
                 <CaretLeft color="#228be6" size={24} />
               </button>
@@ -226,63 +240,36 @@ function App() {
             </div>
 
             {showNewEntry && (
-              <form action="newEntry">
-                <FormInput
-                  value={contEmail}
-                  setValue={setContEmail}
-                  name={"contEmail"}
-                  descripcion={"Email"}
-                  type={"text"}
-                />
-                <FormInput
-                  value={contObs}
-                  setValue={setContObs}
-                  name={"contObs"}
-                  descripcion={"Observación"}
-                  type={"text"}
-                />
-                <FormInput
-                  value={destinatariosId}
-                  setValue={setDestinatariosId}
-                  name={"destinatariosId"}
-                  descripcion={"Destinatarios ID"}
-                  type={"text"}
-                />
-                <FormInput
-                  value={grupoAdmin}
-                  setValue={setGrupoAdmin}
-                  name={"grupoAdmin"}
-                  descripcion={"Grupo Admin"}
-                  type={"text"}
-                />
-
-                {/* <div>
-                <label className="mr-2" htmlFor="destinatariosId">
-                  Destinatarios ID
-                </label>
-                <input
-                  className="border border-gray-400 rounded-md"
-                  type="text"
-                  name="destinatariosId"
-                />
-              </div>
-              <div>
-                <label className="mr-2" htmlFor="grupoAdmin">
-                  Grupo Admin
-                </label>
-                <input
-                  className="border border-gray-400 rounded-md"
-                  type="text"
-                  name="grupoAdmin"
-                />
-              </div> */}
-                <button
-                  className="bg-[#1947a1] text-white p-2 rounded-md transition-all duration-300 hover:bg-[#233049]"
-                  onClick={handleSubmit}
-                >
-                  Enviar
-                </button>
-              </form>
+              <ModalRegistro
+                onHandleChange={handleChange}
+                onHandleSubmit={handleSubmit}
+                onHandleShowNewEntry={handleShowNewEntry}
+                showNewEntry={showNewEntry}
+                grupoNombre={grupoNombre}
+                prodDesc={prodDesc}
+                grupoAdmin={grupoAdmin}
+                destinatariosId={destinatariosId}
+                terTipoId={terTipoId}
+                terId={terId}
+                terNombre={terNombre}
+                contEmail={contEmail}
+                prodProducto={prodProducto}
+                prodTipo={prodTipo}
+                grupoSeleccion={grupoSeleccion}
+                contObs={contObs}
+                onSetGrupoNombre={setGrupoNombre}
+                onSetProdDesc={setProdDesc}
+                onSetGrupoAdmin={setGrupoAdmin}
+                onSetDestinatariosId={setDestinatariosId}
+                onSetTerTipoId={setTerTipoId}
+                onSetTerId={setTerId}
+                onSetTerNombre={setTerNombre}
+                onSetContEmail={setContEmail}
+                onSetProdProducto={setProdProducto}
+                onSetProdTipo={setProdTipo}
+                onSetGrupoSeleccion={setGrupoSeleccion}
+                onSetContObs={setContObs}
+              />
             )}
             <button
               className="bg-[#228be6] text-white p-2 rounded-md font-medium mb-12"
@@ -292,7 +279,7 @@ function App() {
             </button>
           </>
         )}
-      </main>
+      </div>
     </div>
   );
 }
@@ -339,27 +326,224 @@ function HeaderTabla({ titulo }) {
   return <th className="border border-solid border-[#ddd] p-2">{titulo}</th>;
 }
 
-function FormInput({ value, setValue, name, descripcion, type }) {
+function FormInput({ value, setValue, name, label, type, onHandleChange }) {
   FormInput.propTypes = {
     value: PropTypes.any,
     setValue: PropTypes.any,
     name: PropTypes.any,
-    descripcion: PropTypes.any,
+    label: PropTypes.any,
     type: PropTypes.string,
+    onHandleChange: PropTypes.any,
   };
 
   return (
-    <div className="mb-2">
+    <div className="flex flex-col mb-2">
       <label className="mr-2" htmlFor="contObs">
-        {descripcion}
+        {label}
       </label>
       <input
-        className="border border-gray-400 rounded-md p-2"
+        className="border border-gray-400 rounded-md p-1"
         type={type}
         name={name}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={onHandleChange(setValue)}
       />
+    </div>
+  );
+}
+
+function OpcionFiltro({ value, opcion }) {
+  OpcionFiltro.propTypes = {
+    value: PropTypes.any,
+    opcion: PropTypes.any,
+  };
+
+  return <option value={value}>{opcion}</option>;
+}
+
+function ModalRegistro({
+  onHandleChange,
+  onHandleSubmit,
+  onHandleShowNewEntry,
+  showNewEntry,
+  grupoNombre,
+  prodDesc,
+  grupoAdmin,
+  destinatariosId,
+  terTipoId,
+  terId,
+  terNombre,
+  contEmail,
+  prodProducto,
+  prodTipo,
+  grupoSeleccion,
+  contObs,
+  onSetGrupoNombre,
+  onSetProdDesc,
+  onSetGrupoAdmin,
+  onSetDestinatariosId,
+  onSetTerTipoId,
+  onSetTerId,
+  onSetTerNombre,
+  onSetContEmail,
+  onSetProdProducto,
+  onSetProdTipo,
+  onSetGrupoSeleccion,
+  onSetContObs,
+}) {
+  ModalRegistro.propTypes = {
+    onHandleChange: PropTypes.any,
+    onHandleSubmit: PropTypes.any,
+    onHandleShowNewEntry: PropTypes.any,
+    showNewEntry: PropTypes.any,
+    grupoNombre: PropTypes.any,
+    prodDesc: PropTypes.any,
+    grupoAdmin: PropTypes.any,
+    destinatariosId: PropTypes.any,
+    terTipoId: PropTypes.any,
+    terId: PropTypes.any,
+    terNombre: PropTypes.any,
+    contEmail: PropTypes.any,
+    prodProducto: PropTypes.any,
+    prodTipo: PropTypes.any,
+    grupoSeleccion: PropTypes.any,
+    contObs: PropTypes.any,
+    onSetGrupoNombre: PropTypes.any,
+    onSetProdDesc: PropTypes.any,
+    onSetGrupoAdmin: PropTypes.any,
+    onSetDestinatariosId: PropTypes.any,
+    onSetTerTipoId: PropTypes.any,
+    onSetTerId: PropTypes.any,
+    onSetTerNombre: PropTypes.any,
+    onSetContEmail: PropTypes.any,
+    onSetProdProducto: PropTypes.any,
+    onSetProdTipo: PropTypes.any,
+    onSetGrupoSeleccion: PropTypes.any,
+    onSetContObs: PropTypes.any,
+  };
+
+  return (
+    <div className="absolute top-8 w-[600px] h-max bg-slate-300 rounded-md p-4">
+      <div>
+        <button
+          className="bg-[#228be6] text-white p-2 rounded-md font-medium"
+          onClick={onHandleShowNewEntry}
+        >
+          {!showNewEntry ? "Nueva Entrada" : "Cerrar"}
+        </button>
+      </div>
+      <h1 className="text-center font-bold text-xl my-2">Nuevo Registro</h1>
+      <form action="nuevoRegistro">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <FormInput
+              value={grupoNombre}
+              setValue={onSetGrupoNombre}
+              name={"grupoNombre"}
+              label={"Nombre Campaña"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={prodDesc}
+              setValue={onSetProdDesc}
+              name={"prodDesc"}
+              label={"Descripción"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={grupoAdmin}
+              setValue={onSetGrupoAdmin}
+              name={"grupoAdmin"}
+              label={"Administrador grupo"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={destinatariosId}
+              setValue={onSetDestinatariosId}
+              name={"destinatariosId"}
+              label={"ID"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={terTipoId}
+              setValue={onSetTerTipoId}
+              name={"terTipoId"}
+              label={"Tipo documento"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={terId}
+              setValue={onSetTerId}
+              name={"terId"}
+              label={"Documento"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+          </div>
+          <div>
+            <FormInput
+              value={terNombre}
+              setValue={onSetTerNombre}
+              name={"terNombre"}
+              label={"Nombre"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={contEmail}
+              setValue={onSetContEmail}
+              name={"contEmail"}
+              label={"Email"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={prodProducto}
+              setValue={onSetProdProducto}
+              name={"prodProducto"}
+              label={"Producto"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={prodTipo}
+              setValue={onSetProdTipo}
+              name={"prodTipo"}
+              label={"Tipo"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={grupoSeleccion}
+              setValue={onSetGrupoSeleccion}
+              name={"grupoSeleccion"}
+              label={"Grupo Selección"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+            <FormInput
+              value={contObs}
+              setValue={onSetContObs}
+              name={"contObs"}
+              label={"Observación"}
+              type={"text"}
+              onHandleChange={onHandleChange}
+            />
+          </div>
+        </div>
+
+        <button
+          className="bg-[#1947a1] text-white p-2 rounded-md transition-all duration-300 hover:bg-[#233049]"
+          onClick={onHandleSubmit}
+        >
+          Enviar
+        </button>
+      </form>
     </div>
   );
 }
